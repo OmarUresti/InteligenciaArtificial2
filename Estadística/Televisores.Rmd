@@ -1,0 +1,88 @@
+---
+title: "A8-SeriesTiempo"
+author: "Omar Uresti"
+date: "2022-11-22"
+output:
+  word_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Problema
+Se introduce la información de las ventas por 4 años, divididas en trimestres, las cuales nos introducen a conocer la viabilidad de un negocio, así como sus temporadas altas, bajas, y de esta manera estimar el éxito, inversion o costos que se puedan necesitar. Se abordó esta problemática con uso de métodos estadísticos de gráficos como dispersión, series de tiempo, entre otras, que nos ayudarán a conocer más como funcionan las ventas de un negocio. 
+
+````{r}
+t <- c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16)
+y <- c(4.8, 4.1, 6.0, 6.5, 5.8, 5.2, 6.8, 7.4, 6.0, 5.6, 7.5, 7.8, 6.3, 5.9, 8.0, 8.4)
+
+
+df <- data.frame(t, y)
+````
+
+##Ventas por trimestre
+`````{r}
+plot(t, y, type = "o")
+````
+Regresión lineal de tendecia que nos ayuda a conocewr la tendencia que tienen las ventas conforme pasan los años. Se puede ver un patrón similar cada año, cada vez aumentando más y más las ventas.
+````{r}
+N = lm(y~t)
+plot(t, y, type = "o")
+abline(N, col = "blue")
+N
+````
+
+
+````{r}
+x = ts(y, frequency = 4, start(c(2016, 1)))
+plot.ts(x)
+````
+
+##Decomposition in multiple variables
+````{r}
+D = decompose(x, type = "m")
+plot(D)
+````
+
+##seasonal decomoposition per year
+````{r}
+D$seasonal
+````
+
+````{r}
+yseason = (D$x)/(D$seasonal)
+x3 = 1:16
+y3 = yseason
+N3 = lm(y3~x3)
+N3
+````
+
+````{r}
+plot(x3, y3, type = "l")
+abline(N3)
+````
+
+````{r}
+f = function(x) {5.1080 + 0.1474*x}
+s1 = D$seasonal[1]
+s2 = D$seasonal[2]
+s3 = D$seasonal[3]
+s4 = D$seasonal[4]
+f(17)*s1*1000
+f(18)*s2*1000
+f(19)*s3*1000
+f(20)*s4*1000
+````
+
+`````{r}
+p = NA
+e = NA
+for(i in 1:16){
+  e[i] = f(i) - y[i]
+}
+CME2 = mean(e^2, na.rm=TRUE)
+cat("\nCME2: ", CME2)
+
+````
